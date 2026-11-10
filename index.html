@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#FFFBF4">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="呆猫八条">
+<meta name="format-detection" content="telephone=no">
+<meta name="description" content="呆猫八条替你决定今晚干啥：打王者、陪雯雯打电话、打三角洲，还是睡觉。戳一下，它说了算。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="呆猫八条 · 今晚干啥">
+<meta property="og:description" content="打王者 25% · 陪雯雯打电话 35% · 打三角洲 25% · 睡觉 15%。戳一下，呆猫八条替你做决定。">
+<title>呆猫八条 · 今晚干啥</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='55' r='38' fill='%23fff' stroke='%232B2B2B' stroke-width='7'/><ellipse cx='37' cy='53' rx='10' ry='12' fill='%231a1a1a'/><ellipse cx='63' cy='53' rx='10' ry='12' fill='%231a1a1a'/><path d='M30 30 L24 8 L48 24 Z' fill='%23fff' stroke='%232B2B2B' stroke-width='7' stroke-linejoin='round'/><path d='M70 30 L76 8 L52 24 Z' fill='%23fff' stroke='%232B2B2B' stroke-width='7' stroke-linejoin='round'/></svg>">
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;margin:0}
+  body{
+    background:
+      radial-gradient(circle at 12% 6%, #FFEFF4 0%, rgba(255,239,244,0) 46%),
+      radial-gradient(circle at 88% 94%, #E9F7EF 0%, rgba(233,247,239,0) 46%),
+      #FFFBF4;
+    color:#2B2B2B;
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+    overflow:hidden;
+    user-select:none;
+    -webkit-user-select:none;
+    touch-action:manipulation;
+  }
+  .app{
+    height:100vh;height:100dvh;
+    width:100%;
+    display:flex;flex-direction:column;
+    padding:calc(env(safe-area-inset-top) + 10px) 14px calc(env(safe-area-inset-bottom) + 12px);
+    gap:9px;
+    max-width:520px;margin:0 auto;
+    position:relative;
+    overflow:hidden;
+  }
+
+  /* ---------- 顶部 ---------- */
+  header{display:flex;align-items:center;justify-content:center;gap:9px;flex:0 0 auto}
+  .cat{width:48px;height:48px;flex:0 0 auto;animation:bob 2.8s ease-in-out infinite;filter:drop-shadow(0 3px 0 rgba(43,43,43,.10))}
+  @keyframes bob{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-5px) rotate(2deg)}}
+  .titles{display:flex;flex-direction:column;line-height:1.15}
+  .titles b{font-size:19px;letter-spacing:1.2px;font-weight:800}
+  .titles span{font-size:11px;color:#9A8C8C;letter-spacing:2.4px;margin-top:2px}
+
+  .mute{
+    position:absolute;right:12px;top:calc(env(safe-area-inset-top) + 10px);
+    width:34px;height:34px;border-radius:12px;border:2.5px solid #2B2B2B;background:#fff;
+    font-size:15px;line-height:1;display:grid;place-items:center;cursor:pointer;
+    box-shadow:0 3px 0 rgba(43,43,43,.85);padding:0;
+  }
+  .mute:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(43,43,43,.85)}
+
+  /* ---------- 转盘 ---------- */
+  .stage{position:relative;flex:1 1 auto;min-height:0;min-width:0;display:flex;align-items:center;justify-content:center}
+  #wheel{display:block;touch-action:none;max-width:100%}
+
+  .spin{
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:var(--hub,84px);height:var(--hub,84px);border-radius:50%;
+    background:linear-gradient(180deg,#FFFFFF 0%,#FFF0F5 100%);
+    border:4px solid #2B2B2B;
+    box-shadow:0 6px 0 #2B2B2B, inset 0 -5px 0 rgba(43,43,43,.06);
+    color:#2B2B2B;font-family:inherit;font-weight:800;
+    font-size:calc(var(--hub,84px) * .185);
+    letter-spacing:1px;
+    display:grid;place-items:center;padding:0;cursor:pointer;z-index:3;
+    transition:transform .07s ease, box-shadow .07s ease, opacity .2s;
+  }
+  .spin:active:not(:disabled){transform:translate(-50%,-50%) translateY(4px);box-shadow:0 2px 0 #2B2B2B}
+  .spin:disabled{cursor:default;opacity:.92}
+  .spin .two{display:flex;flex-direction:column;align-items:center;gap:1px}
+  .spin .two em{font-style:normal;font-size:calc(var(--hub,84px) * .115);font-weight:700;color:#B08C97;letter-spacing:0}
+  .pulse{animation:pulse 1.9s ease-in-out infinite}
+  @keyframes pulse{0%,100%{box-shadow:0 6px 0 #2B2B2B, inset 0 -5px 0 rgba(43,43,43,.06), 0 0 0 0 rgba(255,159,182,.55)}
+                   55%{box-shadow:0 6px 0 #2B2B2B, inset 0 -5px 0 rgba(43,43,43,.06), 0 0 0 12px rgba(255,159,182,0)}}
+
+  /* ---------- 结果 ---------- */
+  .result{
+    flex:0 0 auto;background:#fff;border:3px solid #2B2B2B;border-radius:18px;
+    padding:9px 14px 10px;text-align:center;
+    box-shadow:0 5px 0 rgba(43,43,43,.85);
+    position:relative;overflow:hidden;
+    transition:background .25s;
+  }
+  .result .cap{font-size:10.5px;color:#A2918F;letter-spacing:3px;margin-bottom:1px}
+  #result{
+    font-size:clamp(22px,7.4vw,30px);font-weight:800;line-height:1.25;
+    min-height:1.25em;letter-spacing:.5px;
+    transition:transform .12s;
+  }
+  #result.pop{animation:pop .42s cubic-bezier(.3,1.6,.5,1)}
+  @keyframes pop{0%{transform:scale(.7)}60%{transform:scale(1.08)}100%{transform:scale(1)}}
+  #sub{font-size:11.5px;color:#A2918F;min-height:15px;margin-top:1px;letter-spacing:.4px}
+
+  .legend{display:flex;gap:9px;justify-content:center;flex-wrap:wrap;font-size:10.5px;color:#9A8C8C;flex:0 0 auto}
+  .legend i{display:inline-block;width:9px;height:9px;border-radius:3px;border:1.5px solid #2B2B2B;margin-right:4px;vertical-align:-1px}
+
+  /* 结果落定后的小彩纸 */
+  .confetti{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:9}
+  .cf{position:absolute;width:8px;height:10px;border-radius:2px;opacity:0;animation:fall 1.15s ease-out forwards}
+  @keyframes fall{
+    0%{opacity:1;transform:translate3d(0,-10px,0) rotate(0)}
+    100%{opacity:0;transform:translate3d(var(--dx,0),110px,0) rotate(var(--rot,220deg))}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <button class="mute" id="mute" aria-label="声音开关">🔊</button>
+
+  <header>
+    <svg class="cat" viewBox="0 0 120 120" aria-hidden="true">
+      <path d="M29 46 L21 13 L52 33 Z" fill="#FFFFFF" stroke="#2B2B2B" stroke-width="4.5" stroke-linejoin="round"/>
+      <path d="M91 46 L99 13 L68 33 Z" fill="#FFFFFF" stroke="#2B2B2B" stroke-width="4.5" stroke-linejoin="round"/>
+      <path d="M34 39 L29 22 L45 32 Z" fill="#FFB3C6" stroke="#2B2B2B" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M86 39 L91 22 L75 32 Z" fill="#FFB3C6" stroke="#2B2B2B" stroke-width="2" stroke-linejoin="round"/>
+      <ellipse cx="60" cy="66" rx="42" ry="37" fill="#FFFFFF" stroke="#2B2B2B" stroke-width="4.5"/>
+      <ellipse cx="44" cy="62" rx="13" ry="15.5" fill="#141414" stroke="#E8C36A" stroke-width="2.4"/>
+      <ellipse cx="76" cy="62" rx="13" ry="15.5" fill="#141414" stroke="#E8C36A" stroke-width="2.4"/>
+      <circle cx="48.5" cy="55.5" r="4.8" fill="#FFFFFF"/>
+      <circle cx="80.5" cy="55.5" r="4.8" fill="#FFFFFF"/>
+      <ellipse cx="27" cy="79" rx="8.5" ry="5" fill="#FFB3C6"/>
+      <ellipse cx="93" cy="79" rx="8.5" ry="5" fill="#FFB3C6"/>
+      <path d="M52 81 q8 7 16 0" stroke="#2B2B2B" stroke-width="3.4" fill="none" stroke-linecap="round"/>
+    </svg>
+    <div class="titles">
+      <b>呆猫八条</b>
+      <span>今晚干啥</span>
+    </div>
+  </header>
+
+  <div class="stage" id="stage">
+    <canvas id="wheel" role="img" aria-label="决策转盘"></canvas>
+    <button class="spin pulse" id="spin" aria-label="选一选">
+      <span class="two"><span id="btnText">选一选</span><em>戳我</em></span>
+    </button>
+  </div>
+
+  <div class="result" id="resultCard">
+    <div class="cap">呆猫八条 说</div>
+    <div id="result" aria-live="polite">今晚听我的</div>
+    <div id="sub">戳中间的按钮，就替你定了</div>
+    <div class="confetti" id="confetti"></div>
+  </div>
+
+  <div class="legend" id="legend"></div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ============ 选项与概率 ============
+     0     ~ 0.25  打王者      （25%）
+     0.25  ~ 0.6   陪雯雯打电话（35%）
+     0.6   ~ 0.85  打三角洲    （25%）
+     0.85  ~ 1     睡觉        （15%）
+  ===================================== */
+  var OPTIONS = [
+    { full: '打王者',       color: '#FFC2D1', hint: '开黑走起，上号！' },
+    { full: '陪雯雯打电话',  color: '#B8E6D0', hint: '她在等你呢' },
+    { full: '打三角洲',      color: '#FFE1A8', hint: '突突突，走一个' },
+    { full: '睡觉',          color: '#C9C0F0', hint: '别熬了，早点睡' }
+  ];
+
+  // 严格按区间取随机数，返回选项下标
+  function decide(r) {
+    if (r < 0.25) return 0;
+    if (r < 0.60) return 1;
+    if (r < 0.85) return 2;
+    return 3;
+  }
+
+  // 把每个选项折算成扇区角度（从正上方开始，顺时针）
+  var acc = -Math.PI / 2;
+  var PROB = [0.25, 0.35, 0.25, 0.15];
+  OPTIONS.forEach(function (o, i) {
+    o.a0 = acc;
+    o.w = PROB[i] * Math.PI * 2;
+    o.a1 = acc + o.w;
+    o.p = PROB[i];
+    acc = o.a1;
+  });
+
+  /* ============ 元素 ============ */
+  var canvas = document.getElementById('wheel');
+  var ctx = canvas.getContext('2d');
+  var stage = document.getElementById('stage');
+  var btn = document.getElementById('spin');
+  var btnText = document.getElementById('btnText');
+  var resultEl = document.getElementById('result');
+  var subEl = document.getElementById('sub');
+  var resultCard = document.getElementById('resultCard');
+  var confettiBox = document.getElementById('confetti');
+  var muteBtn = document.getElementById('mute');
+  var legend = document.getElementById('legend');
+
+  /* ============ 图例 ============ */
+  (function buildLegend() {
+    var html = '';
+    OPTIONS.forEach(function (o) {
+      html += '<span><i style="background:' + o.color + '"></i>' +
+              o.full + ' ' + Math.round(o.p * 100) + '%</span>';
+    });
+    legend.innerHTML = html;
+  })();
+
+  /* ============ 尺寸 ============ */
+  var size = 0, dpr = 1, R = 140, rot = 0;
+
+  function resize() {
+    var w = stage.clientWidth;
+    var h = stage.clientHeight;
+    var vw = window.innerWidth || document.documentElement.clientWidth || 360;
+    var vh = window.innerHeight || document.documentElement.clientHeight || 640;
+    // 舞台宽、舞台高、视口宽三者取最小：最后一项是硬上限，
+    // 万一外层容器被内容撑开，转盘也不会横向出血
+    var limit = Math.min(w, h, vw - 28, vh - 170);
+    var next = Math.max(150, Math.floor(limit));
+    if (next === size) { return; }          // 尺寸没变就不重画
+    size = next;
+    dpr = Math.min(3, window.devicePixelRatio || 1);
+    canvas.style.width = size + 'px';
+    canvas.style.height = size + 'px';
+    canvas.width = Math.floor(size * dpr);
+    canvas.height = Math.floor(size * dpr);
+    R = size / 2 - 12;
+    document.documentElement.style.setProperty('--hub', Math.round(size * 0.27) + 'px');
+    draw();
+  }
+
+  /* ============ 绘制 ============ */
+  function draw() {
+    var cx = size / 2, cy = size / 2;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, size, size);
+
+    ctx.save();
+    ctx.translate(cx, cy);
+
+    // 底盘阴影
+    ctx.beginPath();
+    ctx.arc(0, 0, R + 1, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(43,43,43,.10)';
+    ctx.fill();
+
+    ctx.rotate(rot);
+
+    // 扇区
+    OPTIONS.forEach(function (o) {
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.arc(0, 0, R, o.a0, o.a1);
+      ctx.closePath();
+      ctx.fillStyle = o.color;
+      ctx.fill();
+      ctx.lineWidth = 3.5;
+      ctx.strokeStyle = '#2B2B2B';
+      ctx.lineJoin = 'round';
+      ctx.stroke();
+    });
+
+    // 文字（沿半径方向排，保证不倒着看；长标签折两行避免顶到盘沿）
+    OPTIONS.forEach(function (o) {
+      var mid = (o.a0 + o.a1) / 2;
+      var lines = o.full.length >= 5
+        ? [o.full.slice(0, Math.ceil(o.full.length / 2)), o.full.slice(Math.ceil(o.full.length / 2))]
+        : [o.full];
+      var longest = lines.reduce(function (m, s) { return Math.max(m, s.length); }, 1);
+      var fs = Math.min(R * 0.105, (R * 0.52) / longest);
+      var lh = fs * 1.2;
+      var flip = Math.cos(mid) < 0;
+      ctx.save();
+      ctx.rotate(mid);
+      if (flip) { ctx.rotate(Math.PI); }
+      ctx.font = '700 ' + fs.toFixed(1) + 'px -apple-system,"PingFang SC","Microsoft YaHei",sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#3A2E2E';
+      var tx = (flip ? -1 : 1) * R * 0.575;
+      for (var li = 0; li < lines.length; li++) {
+        var dy = (li - (lines.length - 1) / 2) * lh;
+        if (flip) { dy = -dy; }
+        ctx.fillText(lines[li], tx, dy);
+      }
+      ctx.restore();
+    });
+
+    // 外圈
+    ctx.beginPath();
+    ctx.arc(0, 0, R, 0, Math.PI * 2);
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = '#2B2B2B';
+    ctx.stroke();
+
+    // 边上的小圆点装饰
+    for (var k = 0; k < 8; k++) {
+      var a = k * Math.PI / 4;
+      var x = Math.cos(a) * (R - 13), y = Math.sin(a) * (R - 13);
+      ctx.beginPath();
+      ctx.arc(x, y, 2.6, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255,255,255,.9)';
+      ctx.fill();
+      ctx.lineWidth = 1.4;
+      ctx.strokeStyle = 'rgba(43,43,43,.55)';
+      ctx.stroke();
+    }
+
+    // 中心白底（按钮会盖住，露出边缘一圈）
+    ctx.beginPath();
+    ctx.arc(0, 0, R * 0.30, 0, Math.PI * 2);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fill();
+    ctx.lineWidth = 3.5;
+    ctx.strokeStyle = '#2B2B2B';
+    ctx.stroke();
+
+    ctx.restore();
+
+    // 顶部指针（不跟着转）
+    var px = cx, py = cy - R;
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(px - 15, py - 6);
+    ctx.lineTo(px + 15, py - 6);
+    ctx.lineTo(px, py + 26);
+    ctx.closePath();
+    ctx.fillStyle = '#FF8FA9';
+    ctx.fill();
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = '#2B2B2B';
+    ctx.lineJoin = 'round';
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(px - 8, py + 1);
+    ctx.lineTo(px, py + 15);
+    ctx.lineWidth = 2.6;
+    ctx.strokeStyle = 'rgba(255,255,255,.85)';
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  /* ============ 声音 ============ */
+  var actx = null, muted = false;
+  try { muted = localStorage.getItem('dmbt_muted') === '1'; } catch (e) {}
+  muteBtn.textContent = muted ? '🔇' : '🔊';
+
+  function ac() {
+    if (!actx) {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return null;
+      try { actx = new AC(); } catch (e) { return null; }
+    }
+    if (actx.state === 'suspended') { actx.resume(); }
+    return actx;
+  }
+
+  function blip(freq, dur, vol, type) {
+    if (muted) return;
+    var c = ac(); if (!c) return;
+    var o = c.createOscillator(), g = c.createGain();
+    o.type = type || 'sine';
+    o.frequency.value = freq;
+    var t = c.currentTime;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol, t + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(c.destination);
+    o.start(t); o.stop(t + dur + 0.03);
+  }
+
+  muteBtn.addEventListener('click', function () {
+    muted = !muted;
+    muteBtn.textContent = muted ? '🔇' : '🔊';
+    try { localStorage.setItem('dmbt_muted', muted ? '1' : '0'); } catch (e) {}
+    if (!muted) blip(880, 0.08, 0.06, 'triangle');
+  });
+
+  /* ============ 结果区 ============ */
+  var tickGen = 0;
+
+  function showText(txt, color) {
+    resultEl.textContent = txt;
+    resultCard.style.background = color || '#fff';
+  }
+
+  function startTicker() {
+    var my = ++tickGen;
+    var i = Math.floor(Math.random() * 4);
+    var delay = 55;
+    (function tick() {
+      if (my !== tickGen) return;
+      i = (i + 1) % 4;
+      showText(OPTIONS[i].full, '#fff');
+      blip(1500, 0.035, 0.035, 'square');
+      delay = delay * 1.115 + 4;
+      setTimeout(tick, Math.min(delay, 330));
+    })();
+  }
+
+  function stopTicker() { tickGen++; }
+
+  /* ============ 小彩纸 ============ */
+  function burst() {
+    var colors = ['#FFC2D1', '#B8E6D0', '#FFE1A8', '#C9C0F0', '#FF8FA9', '#FFFFFF'];
+    for (var i = 0; i < 18; i++) {
+      var d = document.createElement('div');
+      d.className = 'cf';
+      d.style.left = (12 + Math.random() * 76) + '%';
+      d.style.top = (10 + Math.random() * 30) + '%';
+      d.style.background = colors[i % colors.length];
+      d.style.border = '1.5px solid rgba(43,43,43,.55)';
+      d.style.setProperty('--dx', (Math.random() * 120 - 60).toFixed(0) + 'px');
+      d.style.setProperty('--rot', (Math.random() * 480 - 240).toFixed(0) + 'deg');
+      d.style.animationDelay = (Math.random() * 0.12).toFixed(2) + 's';
+      confettiBox.appendChild(d);
+      (function (node) { setTimeout(function () { node.remove(); }, 1500); })(d);
+    }
+  }
+
+  /* ============ 转动 ============ */
+  var spinning = false;
+  var easeOutQuart = function (t) { return 1 - Math.pow(1 - t, 4); };
+
+  function spin() {
+    if (spinning) return;
+    spinning = true;
+    btn.disabled = true;
+    btn.classList.remove('pulse');
+    btnText.textContent = '转…';
+    subEl.textContent = '呆猫八条正在算…';
+
+    // 先抽数，再让转盘停到对应扇区——顺序不能反
+    var r = Math.random();
+    var idx = decide(r);
+    var opt = OPTIONS[idx];
+
+    // 落点在该扇区内随机偏一点，看起来自然，但保证不越界
+    var angle = opt.a0 + opt.w * (0.22 + 0.56 * Math.random());
+    var from = rot;
+    var target = -Math.PI / 2 - angle;      // 让该角度转到正上方的指针下
+    var minTurn = from + Math.PI * 2 * 5;
+    while (target < minTurn) target += Math.PI * 2;
+    if (Math.random() < 0.5) target += Math.PI * 2;
+
+    var dur = 3700 + Math.random() * 900;
+    var t0 = performance.now();
+
+    startTicker();
+
+    function frame(now) {
+      var t = Math.min(1, (now - t0) / dur);
+      rot = from + (target - from) * easeOutQuart(t);
+      draw();
+      if (t < 1) {
+        requestAnimationFrame(frame);
+      } else {
+        rot = target % (Math.PI * 2);
+        draw();
+        finish(idx);
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+
+  function finish(idx) {
+    stopTicker();
+    spinning = false;
+    btn.disabled = false;
+    btnText.textContent = '再选一次';
+
+    var o = OPTIONS[idx];
+    showText(o.full, '#FFFFFF');
+    subEl.textContent = o.hint;
+
+    resultEl.classList.remove('pop');
+    void resultEl.offsetWidth;
+    resultEl.classList.add('pop');
+
+    blip(660, 0.10, 0.07, 'triangle');
+    setTimeout(function () { blip(880, 0.10, 0.07, 'triangle'); }, 95);
+    setTimeout(function () { blip(1320, 0.16, 0.065, 'triangle'); }, 190);
+    if (navigator.vibrate) { try { navigator.vibrate([16, 40, 70]); } catch (e) {} }
+
+    burst();
+  }
+
+  /* ============ 绑定 ============ */
+  btn.addEventListener('click', spin);
+
+  var rt = null;
+  function onResize() {
+    clearTimeout(rt);
+    rt = setTimeout(resize, 80);
+  }
+  window.addEventListener('resize', onResize);
+  window.addEventListener('orientationchange', onResize);
+
+  // 首屏
+  resize();
+  window.addEventListener('load', resize);
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(function () { resize(); });
+  }
+  if (window.ResizeObserver) {
+    try { new ResizeObserver(function () { resize(); }).observe(stage); } catch (e) {}
+  }
+  requestAnimationFrame(function () {
+    resize();
+    if (!spinning) btn.classList.add('pulse');
+  });
+})();
+</script>
+</body>
+</html>
